@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WinGo New & Detector Engine</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
+
+        :root {
+            --bg-deep: #030712;
+            --card-glass: rgba(13, 18, 36, 0.85);
+            --white-stroke: rgba(255, 255, 255, 0.9);
+            --accent-cyan: #00f2fe;
+            --accent-purple: #9d4edd;
+            --accent-green: #10b981;
+            --accent-red: #ff3366;
+            --gold: #ffb703;
+            --skip-orange: #f97316;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        body { background-color: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; padding: 10px 8px; }
+
+        .app-card {
+            width: 100%; max-width: 440px; background: var(--card-glass);
+            backdrop-filter: blur(20px); border-radius: 24px; padding: 18px 14px;
+            border: 1.5px solid var(--white-stroke); box-shadow: 0 0 25px rgba(0,242,254,0.15);
+        }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .header-title h1 { font-size: 11px; color: #fff; font-weight: 800; text-transform: uppercase; }
+        .telegram-btn { background: #0088cc; color: #fff; font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 20px; text-decoration: none; }
+
+        .screen {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(3, 7, 18, 0.95));
+            border-radius: 18px; padding: 25px 10px; text-align: center; margin-bottom: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.2); position: relative;
+        }
+
+        .pred-label { font-size: 10px; color: var(--text-sub); font-weight: 800; letter-spacing: 1px; }
+
+        .pred-trend { 
+            font-size: 42px; font-weight: 900; margin: 12px 0; color: #fff; 
+            text-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+            letter-spacing: 2px;
+        }
+        .pred-trend.skip-mode {
+            color: var(--skip-orange);
+            text-shadow: 0 0 25px rgba(249, 115, 22, 0.6);
+        }
+
+        .phase-indicator {
+            display: inline-flex; font-size: 10px; padding: 6px 14px; border-radius: 16px; font-weight: 800;
+            background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);
+            margin-top: 6px;
+        }
+        .phase-indicator.skip-phase {
+            background: rgba(249, 115, 22, 0.15); color: var(--skip-orange); border-color: var(--skip-orange);
+        }
+
+        .period-box {
+            background: rgba(3, 7, 18, 0.65); border-radius: 14px; padding: 10px 14px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .timer-container {
+            background: rgba(3, 7, 18, 0.75); border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.15); text-align: center;
+        }
+        .timer-clock { font-size: 22px; font-weight: 900; color: var(--accent-green); font-family: monospace; }
+
+        .logic-panel { background: rgba(3, 7, 18, 0.65); border-radius: 14px; padding: 10px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .logic-box { font-size: 10px; color: #cbd5e1; line-height: 1.4; background: rgba(15, 23, 42, 0.5); padding: 8px; border-radius: 8px; text-align: left; }
+
+        .history-container { background: rgba(3, 7, 18, 0.75); border-radius: 14px; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: center; }
+        .history-table th { color: var(--text-sub); padding: 6px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .history-table td { padding: 6px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+
+        .badge-win { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+        .badge-loss { background: rgba(255, 51, 102, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+        .badge-skip { background: rgba(249, 115, 22, 0.2); color: var(--skip-orange); border: 1px solid var(--skip-orange); padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="top-bar">
+        <div class="header-title"><h1>WIN GO SMART FLOW & TRAP DETECTOR</h1></div>
+        <a href="https://t.me/AsifWingoExperttrick" target="_blank" class="telegram-btn">JOIN TELEGRAM</a>
+    </div>
+
+    <div class="screen">
+        <div class="pred-label">FLOW SIGNAL</div>
+        <div class="pred-trend" id="predTrend">ANALYZING...</div>
+        <div class="phase-indicator" id="phaseMode">⚡ Smart Flow Active</div>
+    </div>
+
+    <div class="period-box">
+        <div><div style="font-size:9px; color:var(--text-sub)">TARGET PERIOD</div><div style="font-size:14px; font-weight:900; color:var(--gold)" id="targetPeriod">----</div></div>
+        <div style="text-align: right;"><div style="font-size:9px; color:var(--text-sub)">LAST RESULT</div><div style="font-size:14px; font-weight:900; color:var(--accent-cyan)" id="lastNum">-</div></div>
+    </div>
+
+    <div class="timer-container">
+        <div class="timer-clock" id="timerClock">00:30</div>
+    </div>
+
+    <div class="logic-panel">
+        <div style="font-size: 9px; color: var(--accent-cyan); font-weight: 800; margin-bottom: 4px;">🧠 FLOW & TRAP ANALYSIS</div>
+        <div class="logic-box" id="logicBox">> Scanning Dragon, Zig-Zag & Choppy zones...</div>
+    </div>
+
+    <div class="history-container">
+        <div style="font-size:9px; color:var(--text-sub); margin-bottom:8px; display:flex; justify-content:space-between;">
+            <span>FLOW HISTORY</span>
+            <span id="winRateText" style="color:var(--gold)">WIN: 0/0 (SKIPPED: 0)</span>
+        </div>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>PERIOD</th>
+                    <th>RESULT</th>
+                    <th>PREDICT</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                <tr><td colspan="4" style="color:var(--text-sub);">Connecting...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const WINGO_30S_API = "https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json";
+    let totalWins = 0, totalLosses = 0, totalSkipped = 0;
+    let lastPrediction = null, lastProcessedIssue = "", historyLogs = [];
+    let skipCount = 0; // سکیپ کاؤنٹر
+
+    function startTimerEngine() {
+        setInterval(() => {
+            const remSec = 30 - (new Date().getSeconds() % 30);
+            document.getElementById('timerClock').innerText = `00:${remSec < 10 ? '0' : ''}${remSec}`;
+            if (remSec === 29 || remSec === 1) runLiveEngine();
+        }, 1000);
+    }
+
+    async function fetchDirectData() {
+        try {
+            const res = await fetch(WINGO_30S_API);
+            if (res.ok) {
+                const json = await res.json();
+                return json.data?.list || json.list || [];
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    /* 🧠 SMART FLOW, DRAGON, ZIG-ZAG & TRAP DETECTOR */
+    function computeSmartFlowSignal(list) {
+        if (!list || list.length < 8) return { decision: "BIG", phase: "Initializing", reason: "Gathering records..." };
+
+        const nums = list.slice(0, 8).map(i => parseInt(i.number ?? i.num));
+        const sizes = nums.map(n => (n >= 5 ? "BIG" : "SMALL"));
+
+        // 1. اگر سکیپ کاؤنٹر لگا ہو تو پہلے اسے پورا کریں
+        if (skipCount > 0) {
+            skipCount--;
+            return {
+                decision: "SKIP ⏸️",
+                phase: "🛑 Dirty Trend Protection (Skip)",
+                reason: `Unstable or messy trend detected. System is skipping round to safeguard capital. (${skipCount} left)`
+            };
+        }
+
+        // 2. گندا / الٹا ٹرینڈ (Choppy Trap Detector): اگر پیٹرن بار بار بے ہنگم طریقے سے بدلے (مثلاً Big, Small, Big, Big, Small)
+        let alternatingChaos = (sizes[0] !== sizes[1] && sizes[1] === sizes[2] && sizes[2] !== sizes[3]);
+        if (alternatingChaos) {
+            skipCount = 1; // 1 راؤنڈ کا اسکیپ لگا دو
+            return {
+                decision: "SKIP ⏸️",
+                phase: "⚠️ Choppy Trap Detected",
+                reason: `Messy mixed pattern found in recent draws. Triggered automatic safe skip.`
+            };
+        }
+
+        // 3. ڈریگن ٹرینڈ (Dragon Streak Detection): اگر پچھلے 2 یا 3 ایک جیسے ہوں تو ڈریگن کو فالو کرو
+        if (sizes[0] === sizes[1] && sizes[1] === sizes[2]) {
+            return {
+                decision: sizes[0],
+                phase: `🐉 Dragon Streak Active (${sizes[0]})`,
+                reason: `Strong continuous streak detected. Riding the Dragon flow for ${sizes[0]}.`
+            };
+        }
+
+        // 4. زگ زیگ ٹرینڈ (Zig-Zag Detection): اگر باقاعدگی سے الٹ رہا ہو (مثلاً Big ➔ Small ➔ Big)
+        if (sizes[0] !== sizes[1] && sizes[1] !== sizes[2]) {
+            let zigZagTarget = (sizes[0] === "BIG") ? "SMALL" : "BIG";
+            return {
+                decision: zigZagTarget,
+                phase: `⚡ Clean Zig-Zag Flow`,
+                reason: `Alternating market flow detected. Playing reversal target: ${zigZagTarget}.`
+            };
+        }
+
+        // 5. ڈیفالٹ مومنٹم (Moving Sum Fallback)
+        let sum5 = nums.slice(0, 5).reduce((a, b) => a + b, 0);
+        let decision = sum5 >= 23 ? "BIG" : "SMALL";
+
+        return {
+            decision: decision,
+            phase: `📊 Balanced Flow Mode`,
+            reason: `Moving sum analysis (${sum5}) points to ${decision}.`
+        };
+    }
+
+    async function runLiveEngine() {
+        const list = await fetchDirectData();
+        if (!list || list.length === 0) return;
+
+        const latest = list[0];
+        const lastNum = parseInt(latest.number ?? latest.num);
+        const lastIssue = String(latest.issueNumber ?? latest.issue);
+        const actualSize = lastNum >= 5 ? "BIG" : "SMALL";
+
+        if (lastIssue === lastProcessedIssue) return;
+        lastProcessedIssue = lastIssue;
+
+        document.getElementById('lastNum').innerText = `${lastNum} (${actualSize})`;
+
+        try {
+            document.getElementById('targetPeriod').innerText = (BigInt(lastIssue) + 1n).toString().slice(-4);
+        } catch(e) { document.getElementById('targetPeriod').innerText = "NEXT"; }
+
+        if (lastPrediction !== null) {
+            let status = "";
+            if (lastPrediction.includes("SKIP")) {
+                status = "SKIPPED";
+                totalSkipped++;
+            } else {
+                let isWin = (actualSize === lastPrediction);
+                if (isWin) {
+                    status = "WIN";
+                    totalWins++;
+                } else {
+                    status = "LOSS";
+                    totalLosses++;
+                    // لاس ہوتے ہی 1 راؤنڈ کا اسکیپ لازمی کر دو تاکہ گندے ٹرینڈ میں لاس نہ بڑھے
+                    skipCount = 1;
+                }
+            }
+
+            historyLogs.unshift({
+                issue: lastIssue, actual: `${lastNum} (${actualSize})`,
+                pred: lastPrediction, status: status
+            });
+
+            document.getElementById('historyBody').innerHTML = historyLogs.map(item => {
+                let badgeClass = 'badge-skip';
+                if (item.status === 'WIN') badgeClass = 'badge-win';
+                if (item.status === 'LOSS') badgeClass = 'badge-loss';
+
+                return `
+                <tr>
+                    <td style="color:var(--text-sub)">${item.issue.slice(-4)}</td>
+                    <td><b>${item.actual}</b></td>
+                    <td style="font-weight:bold">${item.pred}</td>
+                    <td><span class="${badgeClass}">${item.status}</span></td>
+                </tr>
+                `;
+            }).join('');
+
+            document.getElementById('winRateText').innerText = `WIN: ${totalWins}/${totalWins + totalLosses} (SKIPPED: ${totalSkipped})`;
+        }
+
+        const evalResult = computeSmartFlowSignal(list);
+
+        const predElem = document.getElementById('predTrend');
+        predElem.innerText = evalResult.decision;
+
+        const phaseElem = document.getElementById('phaseMode');
+        phaseElem.innerText = evalResult.phase;
+
+        if (evalResult.decision.includes("SKIP")) {
+            predElem.classList.add('skip-mode');
+            phaseElem.classList.add('skip-phase');
+        } else {
+            predElem.classList.remove('skip-mode');
+            phaseElem.classList.remove('skip-phase');
+        }
+
+        document.getElementById('logicBox').innerText = evalResult.reason;
+
+        lastPrediction = evalResult.decision;
+    }
+
+    startTimerEngine();
+    runLiveEngine();
+</script>
+
+</body>
+</html>
